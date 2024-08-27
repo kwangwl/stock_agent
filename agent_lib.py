@@ -1,17 +1,18 @@
 import boto3
+import os
 
 
-def get_agent_response(agent_id, agent_alias_id, session_id, prompt):
+def get_agent_response(session_id, prompt):
     """Get a response from the Bedrock agent using specified parameters."""
 
     # Create a Boto3 client for the Bedrock Runtime service
     session = boto3.Session()
-    bedrock_agent = session.client(service_name='bedrock-agent-runtime', region_name='us-west-2')
+    bedrock_agent = session.client(service_name='bedrock-agent-runtime', region_name=os.environ.get("BWB_REGION_NAME"))
 
     # Invoke the Bedrock agent with the specified parameters
     response = bedrock_agent.invoke_agent(
-        agentId=agent_id,
-        agentAliasId=agent_alias_id,
+        agentId=os.environ.get("BWB_AGENT_ID"),
+        agentAliasId=os.environ.get("BWB_AGENT_ALIAS_ID"),
         enableTrace=True,
         sessionId=session_id,
         inputText=prompt,

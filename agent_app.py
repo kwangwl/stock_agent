@@ -5,11 +5,6 @@ import uuid
 import json
 
 
-# config
-AGENT_ID = ""
-AGENT_ALIAS_ID = ""
-
-
 # function
 def display_stock_chart(trace):
     chart_text = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
@@ -62,8 +57,6 @@ if submit_button and input_text:
     with st.spinner("응답 생성 중..."):
         # 에이전트 호출 (세션은 항상 초기화 하도록 구성)
         response = glib.get_agent_response(
-            AGENT_ID,
-            AGENT_ALIAS_ID,
             str(uuid.uuid4()),
             input_text
         )

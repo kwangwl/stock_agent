@@ -4,7 +4,7 @@ Building a Stock Analysis Application Using Amazon Bedrock Agent
 ###
 ### Architecture
 
-![Picture2](.//static/Picture2.png) 
+![Picture2](.//static/Picture2.png)
 
 1. Streamlit: Provides a user interface to visually display stock analysis results.
 2. Amazon Bedrock Agent: Integrates with various AI models to analyze stock data, processing data through Knowledge Base and Action Group.

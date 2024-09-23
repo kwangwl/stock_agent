@@ -4,6 +4,12 @@ import pandas as pd
 import uuid
 import json
 
+AGENT_ID = ""
+ALIAS_ID = {
+    "Sonnet 3.0": "",
+    "Sonnet 3.5": ""
+}
+
 
 # function
 def display_stock_chart(trace):
@@ -42,21 +48,22 @@ def display_recommendations(trace):
 st.set_page_config(page_title="주식 분석 에이전트")
 st.title("주식 분석 에이전트")
 
-# session 초기화
-if 'session_stock_agent' not in st.session_state:
-    st.session_state['session_stock_agent'] = ""
+# sidebar (model id)
 
-input_text = st.text_area("종목명을 입력하세요  (한글 이름 or 영어 이름 or 야후 파이낸스 ticker 입력 가능)",
-                          value=st.session_state['session_stock_agent'])
+selected_option = st.sidebar.radio(
+    "옵션을 선택하세요:",
+    ('Sonnet 3.0', 'Sonnet 3.5')
+)
+
+input_text = st.text_area("종목명을 입력하세요  (한글 이름 or 영어 이름 or 야후 파이낸스 ticker 입력 가능)")
 submit_button = st.button("분석 시작", type="primary")
 
 if submit_button and input_text:
-    # session 저장
-    st.session_state['session_stock_agent'] = input_text
-
     with st.spinner("응답 생성 중..."):
         # 에이전트 호출 (세션은 항상 초기화 하도록 구성)
         response = glib.get_agent_response(
+            AGENT_ID,
+            ALIAS_ID[selected_option],
             str(uuid.uuid4()),
             input_text
         )

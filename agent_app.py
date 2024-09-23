@@ -4,10 +4,10 @@ import pandas as pd
 import uuid
 import json
 
-AGENT_ID = ""
+AGENT_ID = st.secrets["AGENT_ID"]
 ALIAS_ID = {
-    "Sonnet 3.0": "",
-    "Sonnet 3.5": ""
+    "Sonnet 3.0": st.secrets["ALIAS_ID_3"],
+    "Sonnet 3.5": st.secrets["ALIAS_ID_3_5"],
 }
 
 

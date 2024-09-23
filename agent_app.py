@@ -4,15 +4,16 @@ import pandas as pd
 import uuid
 import json
 
+
 AGENT_ID = st.secrets["AGENT_ID"]
 ALIAS_ID = {
-    "Sonnet 3.0": st.secrets["ALIAS_ID_3"],
     "Sonnet 3.5": st.secrets["ALIAS_ID_3_5"],
+    "Sonnet 3.0": st.secrets["ALIAS_ID_3"],
 }
 
 
 # function
-def display_stock_chart(trace):
+def display_stock_chart(trace_container, trace):
     chart_text = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
     chart = json.loads(chart_text)
 
@@ -20,43 +21,42 @@ def display_stock_chart(trace):
     df['Date'] = pd.to_datetime(df['Date'])
     df.set_index('Date', inplace=True)
 
-    st.markdown("**주식 차트**")
-    st.line_chart(df, x_label="날짜", y_label="종가")
+    # st.markdown("**주식 차트**")
+    trace_container.line_chart(df, x_label="날짜", y_label="종가")
 
 
-def display_stock_balance(trace):
+def display_stock_balance(trace_container, trace):
     balance_text = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
     balance = json.loads(balance_text)
 
     df = pd.DataFrame.from_dict(balance, orient='index').transpose()
 
-    st.markdown("**재무 제표**")
-    st.dataframe(df, use_container_width=True)
+    trace_container.dataframe(df, use_container_width=True)
 
 
-def display_recommendations(trace):
+def display_recommendations(trace_container, trace):
     recommendations_text = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
     recommendations = json.loads(recommendations_text)
 
     df = pd.DataFrame.from_dict(recommendations, orient='index').transpose()
 
-    st.markdown("**애널리스트 추천**")
-    st.dataframe(df, use_container_width=True)
+    trace_container.dataframe(df, use_container_width=True)
 
 
 # main page
-st.set_page_config(page_title="주식 분석 에이전트")
-st.title("주식 분석 에이전트")
-
-# sidebar (model id)
+st.set_page_config(page_title="Stock Analyzer")
+st.title("Bedrock Agent 주식 분석")
 
 selected_option = st.sidebar.radio(
     "FM 모델을 선택하세요:",
-    ('Sonnet 3.0', 'Sonnet 3.5')
+    ('Sonnet 3.5', 'Sonnet 3.0')
 )
 
-input_text = st.text_area("종목명을 입력하세요  (한글 이름 or 영어 이름 or 야후 파이낸스 ticker 입력 가능)")
+input_text = st.text_input("종목명을 입력하세요  (한글 이름 or 영어 이름 or 야후 파이낸스 ticker 입력 가능)")
 submit_button = st.button("분석 시작", type="primary")
+
+# 실시간 업데이트를 위한 자리 만들기
+trace_container = st.container()
 
 if submit_button and input_text:
     with st.spinner("응답 생성 중..."):
@@ -68,26 +68,47 @@ if submit_button and input_text:
             input_text
         )
 
+        trace_container.subheader("Bedrock Reasoning")
+
+        output_text = ""
+        function_name = ""
+
+        for event in response.get("completion"):
+            # Combine the chunks to get the output text
+            if "chunk" in event:
+                chunk = event["chunk"]
+                output_text += chunk["bytes"].decode()
+
+            # Extract trace information from all events
+            if "trace" in event:
+                trace = event["trace"]["trace"]["orchestrationTrace"]
+
+                if "rationale" in trace:
+                    with trace_container.chat_message("ai"):
+                        st.markdown(trace['rationale']['text'])
+
+                elif function_name != "":
+                    if function_name == "get_stock_chart":
+                        # print("asdf")
+                        display_stock_chart(trace_container, trace)
+
+                    elif function_name == "get_stock_balance":
+                        # print("asdf")
+                        display_stock_balance(trace_container, trace)
+
+                    elif function_name == "get_recommendations":
+                        # print("asdf")
+                        display_recommendations(trace_container, trace)
+
+                    function_name = ""
+
+                else:
+                    function_name = trace.get('invocationInput', {}).get('actionGroupInvocationInput', {}).get(
+                        'function', "")
+
+                # trace_container.json(event["trace"]["trace"])
+
         # 응답 출력
-        output_text = response["output_text"]
-        st.subheader("분석 결과")
-        st.write(output_text)
-
-        # 추적 정보 표시
-        st.divider()
-        st.subheader("추론 기록")
-
-        if response["trace"] and "orchestrationTrace" in response["trace"]:
-            traces = response["trace"]["orchestrationTrace"]
-            for index, item in enumerate(traces):
-                function_name = item.get('invocationInput', {}).get('actionGroupInvocationInput', {}).get(
-                    'function', "")
-
-                if function_name == "get_stock_chart":
-                    display_stock_chart(traces[index + 1])
-
-                elif function_name == "get_stock_balance":
-                    display_stock_balance(traces[index + 1])
-
-                elif function_name == "get_recommendations":
-                    display_recommendations(traces[index + 1])
+        trace_container.divider()
+        trace_container.subheader("Analysis Report")
+        trace_container.write(output_text)

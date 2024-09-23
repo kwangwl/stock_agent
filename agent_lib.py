@@ -18,26 +18,4 @@ def get_agent_response(agent_id, agent_alias_id, session_id, prompt):
         inputText=prompt,
     )
 
-    # Initialize variables to store the output, citations, and trace information
-    output_text = ""
-    trace = {}
-
-    # Process each event in the response
-    for event in response.get("completion"):
-        # Combine the chunks to get the output text
-        if "chunk" in event:
-            chunk = event["chunk"]
-            output_text += chunk["bytes"].decode()
-
-        # Extract trace information from all events
-        if "trace" in event:
-            if "orchestrationTrace" in event["trace"]["trace"]:
-                if "orchestrationTrace" not in trace:
-                    trace["orchestrationTrace"] = []
-                trace["orchestrationTrace"].append(event["trace"]["trace"]["orchestrationTrace"])
-
-    # Return the processed output, citations, and trace information
-    return {
-        "output_text": output_text,
-        "trace": trace
-    }
+    return response

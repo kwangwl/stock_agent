@@ -51,7 +51,7 @@ st.title("주식 분석 에이전트")
 # sidebar (model id)
 
 selected_option = st.sidebar.radio(
-    "옵션을 선택하세요:",
+    "FM 모델을 선택하세요:",
     ('Sonnet 3.0', 'Sonnet 3.5')
 )
 

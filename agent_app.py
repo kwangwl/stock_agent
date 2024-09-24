@@ -13,6 +13,16 @@ ALIAS_ID = {
 
 
 # function
+def display_today(trace_container, trace):
+    today_date = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
+    today_date = json.loads(today_date)
+
+    trace_container.write(f"오늘의 날짜 : {today_date}")
+    # df = pd.DataFrame.from_dict(recommendations, orient='index').transpose()
+
+    # trace_container.dataframe(df, use_container_width=True)
+
+
 def display_stock_chart(trace_container, trace):
     chart_text = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
     chart = json.loads(chart_text)
@@ -88,16 +98,16 @@ if submit_button and input_text:
                         st.markdown(trace['rationale']['text'])
 
                 elif function_name != "":
-                    if function_name == "get_stock_chart":
-                        # print("asdf")
+                    if function_name == "get_today":
+                        display_today(trace_container, trace)
+
+                    elif function_name == "get_stock_chart":
                         display_stock_chart(trace_container, trace)
 
                     elif function_name == "get_stock_balance":
-                        # print("asdf")
                         display_stock_balance(trace_container, trace)
 
                     elif function_name == "get_recommendations":
-                        # print("asdf")
                         display_recommendations(trace_container, trace)
 
                     function_name = ""

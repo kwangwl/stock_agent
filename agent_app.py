@@ -3,6 +3,8 @@ import agent_lib as glib
 import pandas as pd
 import uuid
 import json
+import plotly.graph_objects as go
+import os
 
 
 AGENT_ID = st.secrets["AGENT_ID"]
@@ -23,7 +25,7 @@ def display_today(trace_container, trace):
 
     # trace_container.dataframe(df, use_container_width=True)
 
-import plotly.graph_objects as go
+
 def display_stock_chart(trace_container, trace):
     chart_text = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
     chart_data = json.loads(chart_text)
@@ -34,15 +36,18 @@ def display_stock_chart(trace_container, trace):
     df = df.sort_index()  # 날짜순으로 정렬
 
     # Plotly를 사용한 캔들스틱 차트 생성
-    fig = go.Figure(data=[go.Candlestick(x=df.index,
-                                         open=df['Open'],
-                                         high=df['High'],
-                                         low=df['Low'],
-                                         close=df['Close'])])
-
-    fig.update_layout(xaxis_title='날짜',
-                      yaxis_title='가격'
+    fig = go.Figure(
+        data=[
+            go.Candlestick(
+                x=df.index,
+                open=df['Open'],
+                high=df['High'],
+                low=df['Low'],
+                close=df['Close']
+            )
+        ]
     )
+    fig.update_layout(xaxis_title='날짜', yaxis_title='가격')
 
     # 차트 출력
     trace_container.markdown("**캔들 차트**")
@@ -80,7 +85,7 @@ selected_option = st.sidebar.radio(
 
 # architecture
 with st.expander("아키텍처", expanded=True):
-    st.image("./static/Picture2.png")
+    st.image(os.path.join("static", "Picture2.png"))
 
 input_text = st.text_input("종목명을 입력하세요  (한글 이름 or 영어 이름 or 야후 파이낸스 ticker 입력 가능)")
 submit_button = st.button("분석 시작", type="primary")

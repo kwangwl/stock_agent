@@ -9,6 +9,7 @@ import os
 
 AGENT_ID = st.secrets["AGENT_ID"]
 ALIAS_ID = {
+    "Sonnet 3.5 v2": st.secrets["ALIAS_ID_3_5_V2"],
     "Sonnet 3.5 Cross Region": st.secrets["ALIAS_ID_3_5_CROSS"],
     "Sonnet 3.5": st.secrets["ALIAS_ID_3_5"],
     "Sonnet 3.0": st.secrets["ALIAS_ID_3"],
@@ -80,7 +81,7 @@ st.title("Bedrock Agent 주식 분석")
 
 selected_option = st.sidebar.radio(
     "FM 모델을 선택하세요:",
-    ('Sonnet 3.5 Cross Region', 'Sonnet 3.5', 'Sonnet 3.0')
+    list(ALIAS_ID.keys())
 )
 
 # architecture

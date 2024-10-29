@@ -8,7 +8,7 @@ MAX_PAGE = 2
 REMOVE_COIN = ["리스크", "risk"]
 
 
-def get_all_coins():
+def get_all_coins(locale):
     all_coins = []
     page = 1
 
@@ -20,7 +20,7 @@ def get_all_coins():
             "order": "market_cap_desc",
             "per_page": 250,
             "page": page,
-            "locale": "ko"
+            "locale": locale
         }
 
         response = requests.get(url, params=params)
@@ -60,14 +60,19 @@ def clean_coin_name(name):
 
 
 # 실행
-coins = get_all_coins()
+ko_coins = get_all_coins("ko")
+en_coins = get_all_coins("en")
 unique_names = set()  # 중복 제거를 위한 set
 
 # 중복 제거하면서 이름 정제
-for coin in coins:
-    cleaned_name = clean_coin_name(coin['name'])
-    if cleaned_name:  # 빈 문자열이 아닌 경우만 저장
-        unique_names.add(cleaned_name)
+for ko_coin, en_coin in zip(ko_coins, en_coins):
+    ko_name = clean_coin_name(ko_coin['name'])
+    en_name = clean_coin_name(en_coin['name'])
+
+    if ko_name and ko_name not in REMOVE_COIN:  # 한글 이름 추가
+        unique_names.add(ko_name)
+    if en_name and en_name not in REMOVE_COIN:  # 영어 이름 추가
+        unique_names.add(en_name)
 
 # 정렬된 상태로 파일에 저장
 with open('./cryptocurrency_names.txt', 'w', encoding='utf-8') as f:

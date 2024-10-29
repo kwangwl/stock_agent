@@ -146,10 +146,10 @@ if submit_button and input_text:
                             st.markdown(trace['rationale']['text'])
 
                     elif function_name != "":
-                        # if function_name == "get_today":
-                        #     display_today(trace_container, trace)
+                        if function_name == "get_today":
+                            display_today(trace_container, trace)
 
-                        if function_name == "get_company_profile":
+                        elif function_name == "get_company_profile":
                             display_company_profile(trace_container, trace)
 
                         elif function_name == "get_stock_chart":

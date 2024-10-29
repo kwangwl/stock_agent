@@ -86,7 +86,7 @@ def display_guardrail_trace(trace_container, guardrail_trace):
             trace_container.success("✅ 통과")
 
         if action == "INTERVENED":
-            trace_container.warning("⚠️ 제한 발생")
+            trace_container.warning("⚠️ 제한 조치 발생")
             for assessment in guardrail_trace.get('inputAssessments', []):
                 display_guardrail_result_table(trace_container, assessment)
 
@@ -99,6 +99,6 @@ def display_guardrail_trace(trace_container, guardrail_trace):
             trace_container.success("✅ 통과")
 
         if action == "INTERVENED":
-            trace_container.warning("⚠️ 제한 발생")
+            trace_container.warning("⚠️ 제한 조치 발생")
             for assessment in guardrail_trace.get('outputAssessments', []):
                 display_guardrail_result_table(trace_container, assessment)

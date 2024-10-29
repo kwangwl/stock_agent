@@ -104,9 +104,9 @@ selected_option = st.sidebar.radio(
 
 # architecture
 with st.expander("아키텍처", expanded=True):
-    st.image(os.path.join("static", "Picture2.png"))
+    st.image(os.path.join("static", "Picture3.png"))
 
-input_text = st.text_input("종목명을 입력하세요 (✅기업명 입력 가능 / ⚠️암호화폐 관련 검색 제한)")
+input_text = st.text_input("종목명을 입력하세요 (✅ 기업명 입력 가능 / ⚠️ 암호화폐 관련 검색 제한)")
 submit_button = st.button("분석 시작", type="primary")
 
 # 실시간 업데이트를 위한 자리 만들기

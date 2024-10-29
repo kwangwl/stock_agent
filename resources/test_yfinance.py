@@ -25,10 +25,10 @@ def get_company_profile(ticker):
         phone = phone.replace(' ', '-')
 
     # Industry와 Sector 정보 합치기
-    industry_sector = f"{info.get('industry', 'N/A')} / {info.get('sector', 'N/A')}"
+    industry_sector = ' / '.join(filter(None, [info.get('industry', ''), info.get('sector', '')]))
 
     # CEO 정보 가져오기 (첫 번째 사람의 이름만)
-    ceo = info.get('companyOfficers', [{}])[0].get('name', 'N/A')
+    ceo = info.get('companyOfficers', [{}])[0].get('name', '')
 
     return {
         'Industry Sector': industry_sector,

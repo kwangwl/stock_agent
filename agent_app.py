@@ -5,14 +5,17 @@ import uuid
 import json
 import plotly.graph_objects as go
 import os
+import guardrails
+import re
 
 
 AGENT_ID = st.secrets["AGENT_ID"]
 ALIAS_ID = {
-    "Sonnet 3.5 v2": st.secrets["ALIAS_ID_3_5_V2"],
-    "Sonnet 3.5 Cross Region": st.secrets["ALIAS_ID_3_5_CROSS"],
-    "Sonnet 3.5": st.secrets["ALIAS_ID_3_5"],
-    "Sonnet 3.0": st.secrets["ALIAS_ID_3"],
+    "Sonnet 3.5 v2 w Guardrails": st.secrets["ALIAS_ID_3_5_V2_GUARDRAIL"],
+    # "Sonnet 3.5 v2": st.secrets["ALIAS_ID_3_5_V2"],
+    # "Sonnet 3.5 Cross Region": st.secrets["ALIAS_ID_3_5_CROSS"],
+    # "Sonnet 3.5": st.secrets["ALIAS_ID_3_5"],
+    # "Sonnet 3.0": st.secrets["ALIAS_ID_3"],
 }
 
 
@@ -21,10 +24,20 @@ def display_today(trace_container, trace):
     today_date = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
     today_date = json.loads(today_date)
 
-    trace_container.write(f"오늘의 날짜 : {today_date}")
-    # df = pd.DataFrame.from_dict(recommendations, orient='index').transpose()
+    with trace_container.chat_message("ai"):
+        st.markdown("오늘의 날짜")
+    trace_container.write(f"{today_date}")
 
-    # trace_container.dataframe(df, use_container_width=True)
+
+def display_company_profile(trace_container, trace):
+    company_profile = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
+    company_profile = json.loads(company_profile)
+    df = pd.DataFrame.from_dict(company_profile, orient='index',columns=['정보'])
+
+    # 주식 정보
+    with trace_container.chat_message("ai"):
+        st.markdown("회사 프로필")
+    trace_container.dataframe(df, use_container_width=True)
 
 
 def display_stock_chart(trace_container, trace):
@@ -51,7 +64,8 @@ def display_stock_chart(trace_container, trace):
     fig.update_layout(xaxis_title='날짜', yaxis_title='가격')
 
     # 차트 출력
-    trace_container.markdown("**캔들 차트**")
+    with trace_container.chat_message("ai"):
+        st.markdown("캔들 차트")
     trace_container.plotly_chart(fig)
 
 
@@ -61,7 +75,9 @@ def display_stock_balance(trace_container, trace):
 
     df = pd.DataFrame.from_dict(balance, orient='index').transpose()
 
-    trace_container.markdown("**재무 재표**")
+    # 재무 제표 출력
+    with trace_container.chat_message("ai"):
+        st.markdown("재무 재표")
     trace_container.dataframe(df, use_container_width=True)
 
 
@@ -71,7 +87,9 @@ def display_recommendations(trace_container, trace):
 
     df = pd.DataFrame.from_dict(recommendations, orient='index').transpose()
 
-    trace_container.markdown("**애널리스트 추천 정보**")
+    # 추천 정보 출력
+    with trace_container.chat_message("ai"):
+        st.markdown("애널리스트 추천 정보")
     trace_container.dataframe(df, use_container_width=True)
 
 
@@ -117,34 +135,50 @@ if submit_button and input_text:
 
             # Extract trace information from all events
             if "trace" in event:
-                trace = event["trace"]["trace"]["orchestrationTrace"]
+                # st.json(event["trace"])
+                each_trace = event["trace"]["trace"]
 
-                if "rationale" in trace:
-                    with trace_container.chat_message("ai"):
-                        st.markdown(trace['rationale']['text'])
+                if "orchestrationTrace" in each_trace:
+                    trace = event["trace"]["trace"]["orchestrationTrace"]
 
-                elif function_name != "":
-                    if function_name == "get_today":
-                        display_today(trace_container, trace)
+                    if "rationale" in trace:
+                        with trace_container.chat_message("ai"):
+                            st.markdown(trace['rationale']['text'])
 
-                    elif function_name == "get_stock_chart":
-                        display_stock_chart(trace_container, trace)
+                    elif function_name != "":
+                        # if function_name == "get_today":
+                        #     display_today(trace_container, trace)
 
-                    elif function_name == "get_stock_balance":
-                        display_stock_balance(trace_container, trace)
+                        if function_name == "get_company_profile":
+                            display_company_profile(trace_container, trace)
 
-                    elif function_name == "get_recommendations":
-                        display_recommendations(trace_container, trace)
+                        elif function_name == "get_stock_chart":
+                            display_stock_chart(trace_container, trace)
 
-                    function_name = ""
+                        elif function_name == "get_stock_balance":
+                            display_stock_balance(trace_container, trace)
 
-                else:
-                    function_name = trace.get('invocationInput', {}).get('actionGroupInvocationInput', {}).get(
-                        'function', "")
+                        elif function_name == "get_recommendations":
+                            display_recommendations(trace_container, trace)
+
+                        function_name = ""
+
+                    else:
+                        function_name = trace.get('invocationInput', {}).get('actionGroupInvocationInput', {}).get(
+                            'function', "")
+
+                elif "guardrailTrace" in each_trace:
+                    guardrails.display_guardrail_trace(trace_container, each_trace["guardrailTrace"])
 
                 # trace_container.json(event["trace"]["trace"])
 
         # 응답 출력
         trace_container.divider()
         trace_container.subheader("Analysis Report")
-        trace_container.write(output_text)
+        # {TEXT} 패턴을 찾아서 스타일이 적용된 HTML로 변경
+        styled_text = re.sub(
+            r'\{([^}]+)\}',
+            r'<span style="background-color: #ffd700; padding: 2px 6px; border-radius: 3px; font-weight: bold; color: #1e1e1e;">\1</span>',
+            output_text
+        )
+        trace_container.markdown(styled_text, unsafe_allow_html=True)

@@ -5,7 +5,7 @@ import re
 
 # config
 MAX_PAGE = 2
-REMOVE_COIN = ["리스크", "risk"]
+REMOVE_COIN = ["리스크", "risk", "gas"]
 
 
 def get_all_coins(locale):

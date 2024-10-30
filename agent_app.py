@@ -11,9 +11,9 @@ import re
 
 AGENT_ID = st.secrets["AGENT_ID"]
 ALIAS_ID = {
-    "Sonnet 3.5 v2": st.secrets["BWB_AGENT_ALIAS_ID_3"],
-    "Sonnet 3.5 v1": st.secrets["BWB_AGENT_ALIAS_ID_2"],
-    "Sonnet 3.0": st.secrets["BWB_AGENT_ALIAS_ID_1"],
+    "Sonnet 3.5 v2": st.secrets["AGENT_ALIAS_ID_3"],
+    "Sonnet 3.5 v1": st.secrets["AGENT_ALIAS_ID_2"],
+    "Sonnet 3.0": st.secrets["AGENT_ALIAS_ID_1"],
 }
 
 

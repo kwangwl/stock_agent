@@ -11,11 +11,9 @@ import re
 
 AGENT_ID = st.secrets["AGENT_ID"]
 ALIAS_ID = {
-    "Sonnet 3.5 v2 w Guardrails": st.secrets["ALIAS_ID_3_5_V2_GUARDRAIL"],
-    # "Sonnet 3.5 v2": st.secrets["ALIAS_ID_3_5_V2"],
-    # "Sonnet 3.5 Cross Region": st.secrets["ALIAS_ID_3_5_CROSS"],
-    # "Sonnet 3.5": st.secrets["ALIAS_ID_3_5"],
-    # "Sonnet 3.0": st.secrets["ALIAS_ID_3"],
+    "Sonnet 3.5 v2": st.secrets["BWB_AGENT_ALIAS_ID_3"],
+    "Sonnet 3.5 v1": st.secrets["BWB_AGENT_ALIAS_ID_2"],
+    "Sonnet 3.0": st.secrets["BWB_AGENT_ALIAS_ID_1"],
 }
 
 
@@ -24,8 +22,7 @@ def display_today(trace_container, trace):
     today_date = trace.get('observation', {}).get('actionGroupInvocationOutput', {}).get('text')
     today_date = json.loads(today_date)
 
-    with trace_container.chat_message("ai"):
-        st.markdown("오늘의 날짜")
+    trace_container.markdown("**오늘의 날짜**")
     trace_container.write(f"{today_date}")
 
 
@@ -35,8 +32,7 @@ def display_company_profile(trace_container, trace):
     df = pd.DataFrame.from_dict(company_profile, orient='index',columns=['정보'])
 
     # 주식 정보
-    with trace_container.chat_message("ai"):
-        st.markdown("회사 프로필")
+    trace_container.markdown("**회사 프로필**")
     trace_container.dataframe(df, use_container_width=True)
 
 
@@ -64,8 +60,7 @@ def display_stock_chart(trace_container, trace):
     fig.update_layout(xaxis_title='날짜', yaxis_title='가격')
 
     # 차트 출력
-    with trace_container.chat_message("ai"):
-        st.markdown("캔들 차트")
+    trace_container.markdown("**캔들 차트**")
     trace_container.plotly_chart(fig)
 
 
@@ -76,8 +71,7 @@ def display_stock_balance(trace_container, trace):
     df = pd.DataFrame.from_dict(balance, orient='index').transpose()
 
     # 재무 제표 출력
-    with trace_container.chat_message("ai"):
-        st.markdown("재무 재표")
+    trace_container.markdown("**재무 재표**")
     trace_container.dataframe(df, use_container_width=True)
 
 
@@ -88,8 +82,7 @@ def display_recommendations(trace_container, trace):
     df = pd.DataFrame.from_dict(recommendations, orient='index').transpose()
 
     # 추천 정보 출력
-    with trace_container.chat_message("ai"):
-        st.markdown("애널리스트 추천 정보")
+    trace_container.markdown("**애널리스트 추천 정보**")
     trace_container.dataframe(df, use_container_width=True)
 
 

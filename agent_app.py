@@ -87,8 +87,11 @@ def display_recommendations(trace_container, trace):
 
 
 # main page
+
 st.set_page_config(page_title="Stock Analyzer")
+
 st.title("Bedrock Agent 주식 분석")
+st.page_link("https://genai.fsi.kr", label="🏠 Demo home")
 
 selected_option = st.sidebar.radio(
     "FM 모델을 선택하세요:",

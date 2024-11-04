@@ -5,7 +5,7 @@ import re
 
 # config
 MAX_PAGE = 2
-REMOVE_COIN = ["리스크", "risk", "gas"]
+REMOVE_COIN = ["리스크", "risk", "gas", "98", "텔"]
 
 
 def get_all_coins(locale):
@@ -75,9 +75,9 @@ for ko_coin, en_coin in zip(ko_coins, en_coins):
         unique_names.add(en_name)
 
 # 정렬된 상태로 파일에 저장
-with open('./cryptocurrency_names.txt', 'w', encoding='utf-8') as f:
+with open('cryptocurrency_names_ori.txt', 'w', encoding='utf-8') as f:
     for name in sorted(unique_names):
-        if name not in REMOVE_COIN:
+        if name not in REMOVE_COIN and len(name) > 1:
             f.write(name + '\n')
 
 print(f"총 {len(unique_names)}개의 고유한 코인 이름이 cryptocurrency_names.txt 파일에 저장되었습니다.")
